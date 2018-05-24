@@ -50,7 +50,7 @@ def init_matrix():
     nodes_list = gen_nodes_list()
     n = len(nodes_list)
     # 初始化矩阵
-    matrix = np.mat(np.full((n ,n), np.complex(0, 0)))
+    matrix = np.mat(np.full((n ,n), np.complex(0.0, 0.0)))
 
     sql = "select * from public.train_set"
     cursor.execute(sql)
@@ -66,8 +66,8 @@ def init_matrix():
             att = AName(att_id)
             att_index = nodes_list.index(att)
 
-            matrix[user_index, att_index] = np.complex(0, 1)
-            matrix[att_index, user_index] = np.complex(0, -1)
+            matrix[user_index, att_index] = np.complex(0.0, 1.0)
+            matrix[att_index, user_index] = np.complex(0.0, -1.0)
 
     sql = "select * from public.train_set"
     cursor.execute(sql)
@@ -86,8 +86,8 @@ def init_matrix():
             att = AName(att_id)
             att_index = nodes_list.index(att)
 
-            matrix[user_index, att_index] = np.complex(0, 1)
-            matrix[att_index, user_index] = np.complex(0, -1)
+            matrix[user_index, att_index] = np.complex(0.0, 1.0)
+            matrix[att_index, user_index] = np.complex(0.0, -1.0)
 
     return matrix
 

@@ -21,12 +21,15 @@ def recommend_list(route_length=3, coeffs=[]):
     if route_length == 3:
         final_matrix = (matrix ** 3)
     elif route_length == 5:
-        if coeffs_list:
-            final_matrix = (matrix ** 3) + (matrix ** 5) / coeffs_list[0]
+        if coeffs:
+            final_matrix = (matrix ** 3) + (matrix ** 5) / coeffs[0]
         else:
             final_matrix = (matrix ** 3) + (matrix ** 5) / 20
-    elif route_length ==7 :
-        final_matrix = (matrix ** 3) + (matrix ** 5) / 2 + (matrix ** 7) / 3
+    elif route_length == 7:
+        if coeffs:
+            final_matrix = (matrix ** 3) + (matrix ** 5) / coeffs[0] + (matrix ** 7) / coeffs[1]
+        else:
+            final_matrix = (matrix ** 3) + (matrix ** 5) / 120 + (matrix ** 7) / 5040
     else:
         print("暂时没有对应的公式")
         return
@@ -130,16 +133,23 @@ def grid_search(route_length, coeffs_list):
         if com_precision(best_result, temp_result):
             best_result = temp_result
             best_coeff = coeffs
+            print("当前最优参数: "+str(best_coeff))
+        else:
+            print("放弃当前参数: " + str(coeffs))
     return best_coeff, best_result
 
 
 if __name__ == "__main__":
     coeffs_list = list()
-    for i in range(1, 101, 4):
+    for i in range(1, 101, 5):
         coeffs_list.append([i])
+    # for i in range(1, 100, 5):
+    #     for j in range(1, 100 ,5):
+    #         coeffs_list.append([i, i*j])
+    print(coeffs_list)
 
-    best_coeff, best_result = grid_search(route_length=5, coeffs_list=coeffs_list)
+    best_coeff, best_result = grid_search(route_length=5, coeffs_list=[[30000], [20000]])
     print(best_coeff)
-    print(best_result)
+    # print(best_result)
     for i in range(1, 11):
         print(cal_precision(best_result, i))

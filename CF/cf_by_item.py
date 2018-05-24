@@ -104,7 +104,29 @@ def cos_sm_item(item_user, t1, t2):
     return sum_xy / math.sqrt(sum_xx * sum_yy)
 
 
-def recommend_by_item(user_dict, item_user, user):
+def gen_near_neighbors(user_dict, item_user, item):
+    """
+    计算user 较为相似的用户集
+    :param user_dict:
+    :param item_user:
+    :param user:
+    :return:
+    """
+    neighbors = list()
+    for user in item_user[item].keys():
+        for neighbor in user_dict[user].keys():
+            if neighbor != user and neighbor not in neighbors:
+                neighbors.append(neighbor)
+
+    neighbor_dict = dict()
+    for neighbor in neighbors:
+        sm = cos_sm_item(item_user, neighbor, item)
+        neighbor_dict[neighbor] = sm
+    neighbor_dict = dict(sorted(neighbor_dict.items(), key= lambda x:x[1], reverse=True))
+    return neighbor_dict
+
+
+def recommend_by_item(user_dict, item_user, user, k=30):
     """
     基于物品相似对用户进行推荐
     :param user_dict:
@@ -116,12 +138,27 @@ def recommend_by_item(user_dict, item_user, user):
     left_nodes = set(item_user.keys()) - set(route)
     recommend_dict = dict()
 
-    for item in left_nodes:
-        value = 0
-        for past_node in route:
-            value += len(item_user[item]) * cos_sm_item(item_user, item, past_node)
-        if value != 0:
-            recommend_dict[AName(item)] = value
+    # for item in left_nodes:
+    #     value = 0
+    #     # 寻找相似的物品
+    #     neighbor_dict = gen_near_neighbors(user_dict, item_user, item)
+    #     neighbor_dict = dict(list(neighbor_dict.items())[:k])
+    #
+    #     for neighbor in neighbor_dict.keys():
+    #         value += len(item_user[item]) * cos_sm_item(item_user, item, neighbor)
+    #     if value != 0:
+    #         recommend_dict[AName(item)] = value
+
+    for past in route:
+        neighbor_dict = gen_near_neighbors(user_dict, item_user, past)
+        neighbor_dict = dict(list(neighbor_dict.items())[:k])
+
+        for item, sm in neighbor_dict.items():
+            if item in route:
+                continue
+            else:
+                recommend_dict.setdefault(AName(item), 0)
+                recommend_dict[AName(item)] += sm
 
     recommend_dict = dict(sorted(recommend_dict.items(), key=lambda x: x[1], reverse=True))
     return recommend_dict
@@ -145,7 +182,7 @@ def test():
     cursor.execute(sql)
     rows = cursor.fetchall()
 
-    f = open("recommend_by_item.txt", "w", encoding="utf-8")
+    f = open("recommend_by_item_100.txt", "w", encoding="utf-8")
     i = 0
     for row in rows:
         i += 1
@@ -155,7 +192,7 @@ def test():
         user = row[7]
         classroute = row[2]
 
-        rec_dict = recommend_by_item(user_dict, item_user, user)
+        rec_dict = recommend_by_item(user_dict, item_user, user, 100)
         f.writelines("%s\t%s\t%s\t%s\n" % (user, classroute[:-1], AName(classroute[-1]), json.dumps(rec_dict)))
 
     f.close()

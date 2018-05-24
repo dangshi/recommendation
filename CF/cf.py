@@ -122,7 +122,7 @@ def gen_near_neighbors(user_dict, item_user, user):
     return neighbor_dict
 
 
-def recommend_by_user(user_dict, item_user, user, k=5):
+def recommend_by_user(user_dict, item_user, user, k=10):
     """
     对该用户进行推荐
     :param user_dict:
@@ -168,7 +168,7 @@ def test():
     cursor.execute(sql)
     rows = cursor.fetchall()
 
-    f = open("recommend.txt", "w", encoding="utf-8")
+    f = open("recommend_20.txt", "w", encoding="utf-8")
     i = 0
     for row in rows:
         i += 1
@@ -178,7 +178,7 @@ def test():
         user = row[7]
         classroute = row[2]
 
-        rec_dict = recommend_by_user(user_dict, item_user, user)
+        rec_dict = recommend_by_user(user_dict, item_user, user, 20)
         f.writelines("%s\t%s\t%s\t%s\n" % (user, classroute[:-1], AName(classroute[-1]), json.dumps(rec_dict)))
 
     f.close()
